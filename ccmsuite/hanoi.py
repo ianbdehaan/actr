@@ -214,13 +214,13 @@ class SolveHanoi(ACTR):
         print 'Peg A has disks [{}], peg B has disks [{},{}], peg C has disks []'.format(b3, b2, disk)
         goal.modify(action='transfer')
 
-    def unobstruct_partial_b_empty_c(goal='action:unobstruct', knowledge='next_disk:?disk in_tower:B', towers='A ?a1 ? ? B ?disk ?b2 ? C None ? ?'):
+    def unobstruct_partial_b_empty_c(goal='action:unobstruct', knowledge='next_disk:?disk in_tower:B', towers='A ?a1 ? ? B ?disk ?b2 None C None ? ?'):
         towers.set('A {} {} None B {} None None C None None None'.format(a1, b2, disk))
         print 'Disk {} was moved to peg A'.format(b2)
         print 'Peg A has disks [{},{}], peg B has disks [{}], peg C has disks []'.format(a1, b2, disk)
         goal.modify(action='transfer')
 
-    def unobstruct_partial_b_empty_a(goal='action:unobstruct', knowledge='next_disk:?disk in_tower:B', towers='A None ? ? B ?disk ?b2 ? C ?c1 ? ?'):
+    def unobstruct_partial_b_empty_a(goal='action:unobstruct', knowledge='next_disk:?disk in_tower:B', towers='A None ? ? B ?disk ?b2 None C ?c1 ? ?'):
         towers.set('A {} None None B {} None None C {} None None'.format(b2, disk, c1))
         print 'Disk {} was moved to peg A'.format(b2)
         print 'Peg A has disks [{}], peg B has disks [{}], peg C has disks [{}]'.format(b2, disk, c1)
@@ -314,7 +314,7 @@ class SolveHanoi(ACTR):
 model = SolveHanoi()
 ccm.log_everything(model)
 model.goal.set('action:think')
-model.towers.set('A l m s B None None None C s m None')
+model.towers.set('A None None None B l s m C None None None')
 model.run()
             
         
