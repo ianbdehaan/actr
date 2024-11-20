@@ -314,7 +314,7 @@ class SolveHanoi(ACTR):
 model = SolveHanoi()
 ccm.log_everything(model)
 model.goal.set('action:think')
-model.towers.set('A l None None B None None None C s m None')
+model.towers.set('A l m s B None None None C s m None')
 model.run()
             
         
