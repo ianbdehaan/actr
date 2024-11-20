@@ -3,31 +3,31 @@ from ccm.lib.actr import *
 log=ccm.log()
 
 class SolveHanoi(ACTR):
-    towers = {'A':[],'B':[],'C':['s','m','l']}
+    towers = {'A':['l','m','s'],'B':[],'C':[]}
+    print 'initial configuration:'
+    print 'Peg A has disks {}, peg B has disks {}, peg C has disks {}'.format(towers['A'], towers['B'], towers['C'])
     c_goal = ['l','m','s','d']
     goal = Buffer()
-    thought_process = Buffer()
     knowledge = Buffer()
 
-    def analize_completion(goal='action:think', thought_process='analize:completion'):
+    def check_completion(goal='action:check_completion'):
         if self.towers['C'] == self.c_goal[:3]:
             goal.clear()
         else:
-            thought_process.modify(analize='c_peg')
+            goal.modify(action='think')
 
 
-    def analize_c_peg(goal='action:think', thought_process='analize:c_peg'):
+    def think(goal='action:think'):
         c_len = len(self.towers['C'])
-        thought_process.set('correct_c:true')
         need_clean = False
         clean_until = None
         in_tower=None
+        next_disk='l'
         for i in range(c_len):
             if towers['C'][i]!=self.c_goal[i]:
                 need_clean = True
                 goal.modify(action='clean')
                 clean_until = towers['C'][i]
-                next_disk=self.c_goal[i]
                 break
             next_disk=c_goal[i+1]
         for key in ['A','B']:
@@ -78,15 +78,13 @@ class SolveHanoi(ACTR):
         self.towers['C'].append(disk)
         print 'Disk {} was moved to peg {}'.format(disk, 'C')
         print 'Peg A has disks {}, peg B has disks {}, peg C has disks {}'.format(self.towers['A'], self.towers['B'],self.towers['C'])
-        thought_process.set('analize:completion')
         knowledge.clear()
-        goal.modify(action='think')
+        goal.modify(action='check_completion')
 
 
 model = SolveHanoi()
-# ccm.log_everything(model)
+ccm.log_everything(model)
 model.goal.set('action:think')
-model.thought_process.set('analize:completion')
 model.run()
             
         
