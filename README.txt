@@ -9,7 +9,7 @@ The project makes a use of ccm library and requires Python 2.7 version. For easy
 #Installation
 In order to run the code, the following steps are provided:
 
-1. Make sure you have installed Anaconda and working Python 2.7 environment 
+1. Make sure you have installed Anaconda
 
 2. Clone the git repository: 
 git clone https://github.com/ianbdehaan/actr  
@@ -29,3 +29,5 @@ python hanoi.py
 
 #Usage
 The script simulates the problem of the Towers of Hanoi, with an emphasis on human-like problem-solving. For that, the modular ACT-R framework is implemented.
+
+The initial condition of the problem can be altered by the end of the script where it initializes the towers Buffer
