@@ -7,314 +7,251 @@ class SolveHanoi(ACTR):
     goal = Buffer()
     knowledge = Buffer()
 
-    #--------------------------------CHECKS IF GOAL WAS REACHED-------------------------------------------
-    def completed(goal='action:check_completion', towers='A None None None B None None None C l m s'):
-        goal.clear()
 
-    def not_completed_c(goal='action:check_completion', towers='A ? ? ? B ? ? ? C ? ? None'):
-        goal.modify(action='think')
-
-    def wrong_c1(goal='action:check_completion', towers='A ? ? ? B ? ? ? C !l ? ?'):
-        goal.modify(action='think')
-
-    def wrong_c2(goal='action:check_completion', towers='A ? ? ? B ? ? ? C ? !m ?'):
+    def initial_state(goal='action:init', towers='A ?a1 ?a2 ?a3 B ?b1 ?b2 ?b3 C ?c1 ?c2 ?c3'):
+        print 'Initial state:'
+        print 'Peg A has disks [{},{},{}], peg B has disks [{},{},{}], peg C has disks [{},{},{}]'.format(a1,a2,a3,b1,b2,b3,c1,c2,c3)
         goal.modify(action='think')
 
     #--------------------------------CHECKS FOR CLEAN NEED--------------------------------------------------
-    def c_needs_empty(goal='action:think', towers='A ? ? ? B ? ? ? C ?c1!l!None ? ?'):
-        knowledge.set('clean_until:{} next_disk:l'.format(c1))
+    def clean_needed_1(goal='action:think', towers='A ? ? ? B ? ? ? C !None!l ? ?'):
         goal.modify(action='clean')
 
-    def c_needs_parcial_clean(goal='action:think', towers='A ? ? ? B ? ? ? C l ?c2!m!None ?'):
-        knowledge.set('clean_until:{} next_disk:m'.format(c2))
+    def clean_needed_2(goal='action:think', towers='A ? ? ? B ? ? ? C l s ?'):
         goal.modify(action='clean')
 
-    def c_needs_no_clean_next_l(goal='action:think', towers='A ? ? ? B ? ? ? C None ? ?'):
+    def l_next(goal='action:think', towers='A ? ? ? B ? ? ? C None ? ?'):
         knowledge.set('next_disk:l')
+        goal.modify(action='think2')
 
-    def c_needs_no_clean_next_m(goal='action:think', towers='A ? ? ? B ? ? ? C l None ?'):
+    def m_next(goal='action:think', towers='A ? ? ? B ? ? ? C l None ?'):
         knowledge.set('next_disk:m')
+        goal.modify(action='think2')
 
-    def c_needs_no_clean_next_s(goal='action:think', towers='A ? ? ? B ? ? ? C l m None'):
+    def s_next(goal='action:think', towers='A ? ? ? B ? ? ? C l m None'):
         knowledge.set('next_disk:s')
+        goal.modify(action='think2')
 
+    def completed(goal='action:think', towers='A None None None B None None None C l m s'):
+        goal.clear()
     #---------------------------------CHECKS FOR UNOBSTRUCTION NEED=============================
-    def a_needs_unobstruction(goal='action:think', knowledge='next_disk:?disk', towers='A ?disk !None ? B ? ? ? C ? ? ?' ):
+    def a_needs_unobstruction(goal='action:think2', knowledge='next_disk:?disk', towers='A ?disk !None ? B ? ? ? C ? ? ?' ):
         knowledge.set('next_disk:{} in_tower:A'.format(disk))
         goal.modify(action='unobstruct')
 
-    def b_needs_unobstruction(goal='action:think', knowledge='next_disk:?disk', towers='A ? ? ? B ?disk !None ? C ? ? ?' ):
+    def b_needs_unobstruction(goal='action:think2', knowledge='next_disk:?disk', towers='A ? ? ? B ?disk !None ? C ? ? ?' ):
         knowledge.set('next_disk:{} in_tower:B'.format(disk))
         goal.modify(action='unobstruct')
 
-    def a_needs_partial_unobstruction(goal='action:think', knowledge='next_disk:?disk', towers='A !None ?disk !None B ? ? ? C ? ? ?' ):
-        knowledge.set('next_disk:{} in_tower:A'.format(disk))
-        goal.modify(action='unobstruct')
-
-    def b_needs_partial_unobstruction(goal='action:think', knowledge='next_disk:?disk', towers='A ? ? ? B !None ?disk !None C ? ? ?' ):
-        knowledge.set('next_disk:{} in_tower:B'.format(disk))
-        goal.modify(action='unobstruct')
-
-    def a1_no_unobstruction(goal='action:think', knowledge='next_disk:?disk', towers='A ?disk None ? B ? ? ? C ? ? ?' ):
+    def a_no_unobstruction(goal='action:think2', knowledge='next_disk:?disk', towers='A ?disk None ? B ? ? ? C ? ? ?' ):
         knowledge.set('next_disk:{} in_tower:A'.format(disk))
         goal.modify(action='transfer')
 
-    def a2_no_unobstruction(goal='action:think', knowledge='next_disk:?disk', towers='A ? ?disk None B ? ? ? C ? ? ?' ):
-        knowledge.set('next_disk:{} in_tower:A'.format(disk))
-        goal.modify(action='transfer')
-
-    def a3_no_unobstruction(goal='action:think', knowledge='next_disk:?disk', towers='A ? ? ?disk B ? ? ? C ? ? ?' ):
-        knowledge.set('next_disk:{} in_tower:A'.format(disk))
-        goal.modify(action='transfer')
-
-    def b1_no_unobstruction(goal='action:think', knowledge='next_disk:?disk', towers='A ? ? ? B ?disk None ? C ? ? ?' ):
+    def b_no_unobstruction(goal='action:think2', knowledge='next_disk:?disk', towers='A ? ? ? B ?disk None ? C ? ? ?' ):
         knowledge.set('next_disk:{} in_tower:B'.format(disk))
         goal.modify(action='transfer')
 
-    def b2_no_unobstruction(goal='action:think', knowledge='next_disk:?disk', towers='A ? ? ? B ? ?disk None C ? ? ?' ):
-        knowledge.set('next_disk:{} in_tower:B'.format(disk))
-        goal.modify(action='transfer')
-
-    def b3_no_unobstruction(goal='action:think', knowledge='next_disk:?disk', towers='A ? ? ? B ? ? ?disk C ? ? ?' ):
-        knowledge.set('next_disk:{} in_tower:B'.format(disk))
-        goal.modify(action='transfer')
-    #---------------------------Clean Actions-----------------------------------------------------------------
-    def clean_two_last(goal='action:clean', knowledge='clean_until:?until', towers='A ?a1 ?a2 ?a3 B ?b1 ?b2 ?b3 C l ?until ?c3!None'):
-        towers.set('A {} None None B None None None C l {} None'.format(c3, until))
-        print 'Disk {} was moved to peg A'.format(c3)
-        print 'Peg A has disks [{}], peg B has disks [], peg C has disks [l,{}]'.format(c3, until)
-        towers.set('A {} None None B {} None None C l None None'.format(c3, until))
-        print 'Disk {} was moved to peg B'.format(until)
-        print 'Peg A has disks [{}], peg B has disks [{}], peg C has disks [l]'.format(c3, until)
+    #-------------------------- CLEAN ACTIONS------------------------------------------------------------
+    def clean_any_to_None_A(goal='action:clean', towers='A None None None B ?b1 ?b2 None C ?c1!None None None'):
+        towers.set('A {} None None B {} {} None C None None None'.format(c1, b1, b2))
+        print 'Disk {} was moved to peg A'.format(c1)
+        print 'Peg A has disks [{}], peg B has disks [{},{}], peg C has disks []'.format(c1,b1,b2)
         goal.modify(action='think')
 
-    def clean_all_l_second(goal='action:clean', knowledge='clean_until:?until', towers='A ?a1 ?a2 ?a3 B ?b1 ?b2 ?b3 C ?until l ?c3!None'):
-        towers.set('A {} None None B None None None C {} l None'.format(c3, until))
-        print 'Disk {} was moved to peg A'.format(c3)
-        print 'Peg A has disks [{}], peg B has disks [], peg C has disks [l,{}]'.format(c3, until)
-        towers.set('A {} None None B l None None C {} None None'.format(c3, until))
-        print 'Disk l was moved to peg B'
-        print 'Peg A has disks [{}], peg B has disks [l], peg C has disks [{}]'.format(c3, until)
-        towers.set('A {} {} None B l None None C None None None'.format(c3, until))
-        print 'Disk {} was moved to peg A'.format(until)
-        print 'Peg A has disks [{},{}], peg B has disks [l], peg C has disks []'.format(c3, until)
+    def clean_s_to_A(goal='action:clean', towers='A m None None B l None None C s None None'):
+        towers.set('A {} {} None B {} None None C None None None'.format('m', 's', 'l'))
+        print 'Disk {} was moved to peg C'.format('s')
+        print 'Peg A has disks [{},{}], peg B has disks [{}], peg C has disks []'.format('m','s','l')
         goal.modify(action='think')
 
-    def clean_all_l_third(goal='action:clean', knowledge='clean_until:?until', towers='A ?a1 ?a2 ?a3 B ?b1 ?b2 ?b3 C ?until ?c2 l'):
-        towers.set('A None None None B l None None C {} {} None'.format(until, c2))
-        print 'Disk l was moved to peg B'
-        print 'Peg A has disks [], peg B has disks [l], peg C has disks [{},{}]'.format(until, c2)
-        towers.set('A {} None None B l None None C {} None None'.format(c2, until))
-        print 'Disk {} was moved to peg A'.format(c2)
-        print 'Peg A has disks [{}], peg B has disks [l], peg C has disks [{}]'.format(c2, until)
-        towers.set('A {} {} None B l None None C None None None'.format(c2, until))
-        print 'Disk {} was moved to peg B'.format(until)
-        print 'Peg A has disks [{},{}], peg B has disks [l], peg C has disks []'.format(c2, until)
+    def clean_ms_to_A(goal='action:clean', towers='A None None None B l None None C m s None'):
+        towers.set('A None None None B {} {} None C {} None None'.format('l', 's', 'm'))
+        print 'Disk {} was moved to peg B'.format('s')
+        print 'Peg A has disks [], peg B has disks [{},{}], peg C has disks [{}]'.format('l','s','m')
+        towers.set('A {} None None B {} {} None C None None None'.format('m', 'l', 's'))
+        print 'Disk {} was moved to peg A'.format('m')
+        print 'Peg A has disks [{}], peg B has disks [{},{}], peg C has disks []'.format('m','l','s')
+        towers.set('A {} None None B {} {} None C None None None'.format('m', 'l', 's'))
+        print 'Disk {} was moved to peg A'.format('s')
+        print 'Peg A has disks [{},{}], peg B has disks [{}], peg C has disks []'.format('m','s','l')
         goal.modify(action='think')
 
-    def clean_two_first_to_b(goal='action:clean', knowledge='clean_until:?until', towers='A l ? ? B ? ? ? C ?until ?c2 None'):
-        towers.set('A l None None B {} None None C {} None None'.format(c2, until))
-        print 'Disk {} was moved to peg B'.format(c2)
-        print 'Peg A has disks [l], peg B has disks [{}], peg C has disks [{}]'.format(c2, until)
-        towers.set('A l None None B {} {} None C None None None'.format(c2, until))
-        print 'Disk {} was moved to peg B'.format(until)
-        print 'Peg A has disks [l], peg B has disks [{},{}], peg C has disks []'.format(c2, until)
+    def clean_m_s_in_A(goal='action:clean', towers='A s None None B l None None C m None None'):
+        towers.set('A None None None B {} {} None C {} None None'.format('l','s','m'))
+        print 'Disk {} was moved to peg B'.format('s')
+        print 'Peg A has disks [], peg B has disks [{},{}], peg C has disks [{}]'.format('l','s','m')
+        towers.set('A {} None None B {} {} None C None None None'.format('m','l','s'))
+        print 'Disk {} was moved to peg C'.format('s')
+        print 'Peg A has disks [{}], peg B has disks [{},{}], peg C has disks []'.format('m','l','s')
+        towers.set('A {} {} None B {} None None C None None None'.format('m','s','l'))
+        print 'Disk {} was moved to peg A'.format('m')
+        print 'Peg A has disks [{},{}], peg B has disks [{}], peg C has disks []'.format('m','s','l')
         goal.modify(action='think')
 
-    def clean_two_first_mixed_a(goal='action:clean', knowledge='clean_until:?until', towers='A ?a1!None!l ? ? B ? ? ? C ?until l None'):
-        towers.set('A {} None None B l None None C {} None None'.format(a1, until))
-        print 'Disk l was moved to peg B'
-        print 'Peg A has disks [{}], peg B has disks [l], peg C has disks [{}]'.format(a1, until)
-        towers.set('A {} {} None B l None None C None None None'.format(a1, until))
-        print 'Disk {} was moved to peg A'.format(until)
-        print 'Peg A has disks [{},{}], peg B has disks [l], peg C has disks []'.format(a1, until)
+    def clean_any_to_None_B(goal='action:clean', towers='A ?a1 ?a2 None B None None None C ?c1!None None None'):
+        towers.set('A {} {} None B {} None None C None None None'.format(a1, a2, c1))
+        print 'Disk {} was moved to peg B'.format(c1)
+        print 'Peg A has disks [{},{}], peg B has disks [{}], peg C has disks []'.format(a1,a2,c1)
         goal.modify(action='think')
 
-    def clean_two_first_mixed_b(goal='action:clean', knowledge='clean_until:?until', towers='A ? ? ? B ?b1!None!l ? ? C ?until l None'):
-        towers.set('A l None None B {} None None C {} None None'.format(b1, until))
-        print 'Disk l was moved to peg B'
-        print 'Peg A has disks [l], peg B has disks [{}], peg C has disks [{}]'.format(b1, until)
-        towers.set('A l None None B {} {} None C None None None'.format(b1, until))
-        print 'Disk {} was moved to peg B'.format(until)
-        print 'Peg A has disks [l], peg B has disks [{},{}], peg C has disks []'.format(b1, until)
+    def clean_s_to_B(goal='action:clean', towers='A l None None B m None None C s None None'):
+        towers.set('A {} None None B {} {} None C None None None'.format('l','m','s'))
+        print 'Disk {} was moved to peg B'.format('s')
+        print 'Peg A has disks [{}], peg B has disks [{},{}], peg C has disks []'.format('l','m','s')
         goal.modify(action='think')
 
-    def clean_two_first_to_a(goal='action:clean', knowledge='clean_until:?until', towers='A ? ? ? B l ? ? C ?until ?c2 None'):
-        towers.set('A {} None None B l None None C {} None None'.format(c2, until))
-        print 'Disk {} was moved to peg A'.format(c2)
-        print 'Peg A has disks [{}], peg B has disks [l], peg C has disks [{}]'.format(c2, until)
-        towers.set('A {} {} None B l None None C None None None'.format(c2, until))
-        print 'Disk {} was moved to peg A'.format(until)
-        print 'Peg A has disks [{},{}], peg B has disks [l], peg C has disks []'.format(c2, until)
+    def clean_ms_to_B(goal='action:clean', towers='A l None None B None None None C m s None'):
+        towers.set('A {} {} None B None None C {} None None'.format('l', 's', 'm'))
+        print 'Disk {} was moved to peg B'.format('s')
+        print 'Peg A has disks [{},{}], peg B has disks [], peg C has disks [{}]'.format('l','s','m')
+        towers.set('A {} {} None B {} None None C None None None'.format('l', 's', 'm'))
+        print 'Disk {} was moved to peg B'.format('m')
+        print 'Peg A has disks [{},{}], peg B has disks [{}], peg C has disks []'.format('l','s','m')
+        towers.set('A {} None None B {} {} None C None None None'.format('l','m', 's'))
+        print 'Disk {} was moved to peg B'.format('s')
+        print 'Peg A has disks [{}], peg B has disks [{},{}], peg C has disks []'.format('l','m','s',)
+        goal.modify(action='think')
+        
+    def clean_m_s_in_B(goal='action:clean', towers='A l None None B s None None C m None None'):
+        towers.set('A {} {} None B None None None C {} None None'.format('l','s','m'))
+        print 'Disk {} was moved to peg A'.format('s')
+        print 'Peg A has disks [{},{}], peg B has disks [], peg C has disks [{}]'.format('l','s','m')
+        towers.set('A {} {} None B {} None None C None None None'.format('l','s','m'))
+        print 'Disk {} was moved to peg B'.format('m')
+        print 'Peg A has disks [{},{}], peg B has disks [{}], peg C has disks []'.format('l','m','s')
+        towers.set('A {} None None B {} {} None C None None None'.format('l','m','s'))
+        print 'Disk {} was moved to peg B'.format('s')
+        print 'Peg A has disks [{}], peg B has disks [{},{}], peg C has disks []'.format('l','m','s')
         goal.modify(action='think')
 
-    def clean_first_to_a1(goal='action:clean', knowledge='clean_until:?until', towers='A None ? ? B ?b1 ?b2 ? C ?until None None'):
-        towers.set('A {} None None B {} {} None C None None None'.format(until, b1, b2))
-        print 'Disk {} was moved to peg A'.format(until)
-        print 'Peg A has disks [{}], peg B has disks [{},{}], peg C has disks []'.format(until,b1,b2)
+    def clean_ls_to_A(goal='action:clean', towers='A None None None B m None None C l s None'):
+        towers.set('A {} None None B {} None None C {} None None'.format('s', 'm', 'l'))
+        print 'Disk {} was moved to peg A'.format('s')
+        print 'Peg A has disks [{}], peg B has disks [{}], peg C has disks [{}]'.format('s','m','l')
         goal.modify(action='think')
 
-    def clean_first_to_a2(goal='action:clean', knowledge='clean_until:?until', towers='A ?a1 ? ? B l None ? C ?until None None'):
-        towers.set('A {} {} None B l None None C None None None'.format(a1, until))
-        print 'Disk {} was moved to peg A'.format(until)
-        print 'Peg A has disks [{},{}], peg B has disks [l], peg C has disks []'.format(a1,until)
+    def clean_ls_to_B(goal='action:clean', towers='A m None None B None None None C l s None'):
+        towers.set('A {} None None B {} None None C {} None None'.format('m', 's', 'l'))
+        print 'Disk {} was moved to peg A'.format('s')
+        print 'Peg A has disks [{}], peg B has disks [{}], peg C has disks [{}]'.format('m','s','l')
         goal.modify(action='think')
 
-    def clean_first_to_b1(goal='action:clean', knowledge='clean_until:?until', towers='A ?a1 ?a2 ? B None ? ? C ?until None None'):
-        towers.set('A {} {} None B {} None None C None None None'.format(a1, a2, until))
-        print 'Disk {} was moved to peg B'.format(until)
-        print 'Peg A has disks [{},{}], peg B has disks [{}], peg C has disks []'.format(a1,a2,until)
-        goal.modify(action='think')
-
-    def clean_first_to_b2(goal='action:clean', knowledge='clean_until:?until', towers='A l None ? B ?b1 ? ? C ?until None None'):
-        towers.set('A l None None B {} {} None C None None None'.format(b1, until))
-        print 'Disk {} was moved to peg B'.format(until)
-        print 'Peg A has disks [l], peg B has disks [{},{}], peg C has disks []'.format(a1,until)
-        goal.modify(action='think')
     #-------------------------- UNOBSTRUCTION ACTIONS------------------------------------------------------------
-    def unobstruct_full_a_completely(goal='action:unobstruct', knowledge='next_disk:?disk in_tower:A', towers='A ?disk ?a2 ?a3!None B ? ? ? C ? ? ?'):
-        towers.set('A {} {} None B {} None None C None None None'.format(disk, a2, a3))
-        print 'Disk {} was moved to peg B'.format(a3)
-        print 'Peg A has disks [{},{}], peg B has disks [{}], peg C has disks []'.format(disk, a2, a3)
-        towers.set('A {} None None B {} {} None C None None None'.format(disk, a3, a2))
+    def unobstruct_full_a(goal='action:unobstruct', knowledge='next_disk:l in_tower:A', towers='A ?disk ?a2 ?a3!None B ? ? ? C ? ? ?'):
+        towers.set('A {} {} None B None None None C {} None None'.format(disk, a2, a3))
+        print 'Disk {} was moved to peg C'.format(a3)
+        print 'Peg A has disks [{},{}], peg B has disks [], peg C has disks [{}]'.format(disk, a2, a3)
+        towers.set('A {} None None B {} None None C {} None None'.format(disk, a2, a3))
         print 'Disk {} was moved to peg B'.format(a2)
-        print 'Peg A has disks [{}], peg B has disks [{},{}], peg C has disks []'.format(disk, a3, a2)
-        goal.modify(action='transfer')
+        print 'Peg A has disks [{}], peg B has disks [{}], peg C has disks [{}]'.format(disk, a2, a3)
+        knowledge.clear()
+        goal.modify(action='think')
 
-    def unobstruct_full_a_partialy(goal='action:unobstruct', knowledge='next_disk:?disk in_tower:A', towers='A ?a1 ?disk ?a3!None B ? ? ? C ? ? ?'):
-        towers.set('A {} {} None B {} None None C None None None'.format(a1, disk, a3))
-        print 'Disk {} was moved to peg B'.format(a3)
-        print 'Peg A has disks [{},{}], peg B has disks [{}], peg C has disks []'.format(a1, disk, a3)
-        goal.modify(action='transfer')
+    def unobstruct_ls_a(goal='action:unobstruct', knowledge='next_disk:?disk in_tower:A', towers='A ?disk s None B ?b1 ? ? C None ? ?'):
+        towers.set('A {} None None B {} {} None C None None None'.format(disk, b1, 's'))
+        print 'Disk {} was moved to peg B'.format('s')
+        print 'Peg A has disks [{}], peg B has disks [{},{}], peg C has disks []'.format(disk, b1, 's')
+        knowledge.clear()
+        goal.modify(action='think')
 
-    def unobstruct_partial_a_empty_c(goal='action:unobstruct', knowledge='next_disk:?disk in_tower:A', towers='A ?disk ?a2 None B ?b1 ? ? C None ? ?'):
-        towers.set('A {} None None B {} {} None C None None None'.format(disk, b1, a2))
-        print 'Disk {} was moved to peg B'.format(a2)
-        print 'Peg A has disks [{}], peg B has disks [{},{}], peg C has disks []'.format(disk, b1, a2)
-        goal.modify(action='transfer')
+    def unobstruct_ms_a(goal='action:unobstruct', knowledge='next_disk:?disk in_tower:A', towers='A ?disk s None B ? ? ? C ?c1!None ? ?'):
+        towers.set('A {} None None B {} None None C {} None None'.format(disk, 's', c1))
+        print 'Disk {} was moved to peg B'.format('s')
+        print 'Peg A has disks [{}], peg B has disks [{}], peg C has disks [{}]'.format(disk, 's', c1)
+        knowledge.clear()
+        goal.modify(action='think')
 
-    def unobstruct_partial_a_empty_b(goal='action:unobstruct', knowledge='next_disk:?disk in_tower:A', towers='A ?disk ?a2 None B None ? ? C ?c1 ? ?'):
-        towers.set('A {} None None B {} None None C {} None None'.format(disk, a2, c1))
-        print 'Disk {} was moved to peg B'.format(a2)
-        print 'Peg A has disks [{}], peg B has disks [{}], peg C has disks [{}]'.format(disk, a2, c1)
-        goal.modify(action='transfer')
+    def unobstruct_lm_a(goal='action:unobstruct', knowledge='next_disk:?disk in_tower:A', towers='A ?disk m None B ?b1 ? ? C None ? ?'):
+        towers.set('A {} {} None B None None None C {} None None'.format(disk, 'm', b1))
+        print 'Disk {} was moved to peg C'.format(b1)
+        print 'Peg A has disks [{},{}], peg B has disks [], peg C has disks [{}]'.format(disk, 'm', b1)
+        towers.set('A {} None None B {} None None C {} None None'.format(disk, 'm', b1))
+        print 'Disk {} was moved to peg B'.format('m')
+        print 'Peg A has disks [{}], peg B has disks [{}], peg C has disks [{}]'.format(disk, 'm', b1)
+        knowledge.clear()
+        goal.modify(action='think')
 
-    def unobstruct_full_b_completely(goal='action:unobstruct', knowledge='next_disk:?disk in_tower:B', towers='A ? ? ? B ?disk ?b2 ?b3!None C ? ? ?'):
-        towers.set('A {} None None B {} {} None C None None None'.format(b3, disk, b2))
-        print 'Disk {} was moved to peg A'.format(b3)
-        print 'Peg A has disks [{}], peg B has disks [{},{}], peg C has disks []'.format(b3, disk, b2)
-        towers.set('A {} {} None B {} None None C None None None'.format(b3, b2, disk))
+    def unobstruct_full_b(goal='action:unobstruct', knowledge='next_disk:?disk in_tower:B', towers='A ? ? ? B ?disk ?b2 ?b3!None C ? ? ?'):
+        towers.set('A None None None B {} {} None C {} None None'.format(disk, b2, b3))
+        print 'Disk {} was moved to peg C'.format(b3)
+        print 'Peg A has disks [], peg B has disks [{},{}], peg C has disks [{}]'.format(disk, b2, b3)
+        towers.set('A {} None None B {} None None C {} None None'.format(b2, disk, b3))
         print 'Disk {} was moved to peg A'.format(b2)
-        print 'Peg A has disks [{},{}], peg B has disks [{}], peg C has disks []'.format(b3, b2, disk)
-        goal.modify(action='transfer')
+        print 'Peg A has disks [{}], peg B has disks [{}], peg C has disks [{}]'.format(b2, disk, b3)
+        knowledge.clear()
+        goal.modify(action='think')
 
-    def unobstruct_full_b_partialy(goal='action:unobstruct', knowledge='next_disk:?disk in_tower:B', towers='A ? ? ? B ?b1 ?disk ?b3!None C ? ? ?'):
-        towers.set('A {} None None B {} {} None C None None None'.format(b3, b2, disk))
-        print 'Disk {} was moved to peg A'.format(b3)
-        print 'Peg A has disks [{}], peg B has disks [{},{}], peg C has disks []'.format(b3, b2, disk)
-        goal.modify(action='transfer')
+    def unobstruct_ls_b(goal='action:unobstruct', knowledge='next_disk:?disk in_tower:B', towers='A ?a1 ? ? B ?disk s None C None ? ?'):
+        towers.set('A {} {} None B {} None None C None None None'.format(a1, 's', disk))
+        print 'Disk {} was moved to peg A'.format('s')
+        print 'Peg A has disks [{},{}], peg B has disks [{}], peg C has disks []'.format(a1, 's', disk)
+        knowledge.clear()
+        goal.modify(action='think')
 
-    def unobstruct_partial_b_empty_c(goal='action:unobstruct', knowledge='next_disk:?disk in_tower:B', towers='A ?a1 ? ? B ?disk ?b2 None C None ? ?'):
-        towers.set('A {} {} None B {} None None C None None None'.format(a1, b2, disk))
-        print 'Disk {} was moved to peg A'.format(b2)
-        print 'Peg A has disks [{},{}], peg B has disks [{}], peg C has disks []'.format(a1, b2, disk)
-        goal.modify(action='transfer')
+    def unobstruct_ms_b(goal='action:unobstruct', knowledge='next_disk:?disk in_tower:B', towers='A ? ? ? B ?disk s None C ?c1!None ? ?'):
+        towers.set('A {} None None B {} None None C {} None None'.format('s', disk, c1))
+        print 'Disk {} was moved to peg A'.format('s')
+        print 'Peg A has disks [{}], peg B has disks [{}], peg C has disks [{}]'.format('s', disk, c1)
+        knowledge.clear()
+        goal.modify(action='think')
 
-    def unobstruct_partial_b_empty_a(goal='action:unobstruct', knowledge='next_disk:?disk in_tower:B', towers='A None ? ? B ?disk ?b2 None C ?c1 ? ?'):
-        towers.set('A {} None None B {} None None C {} None None'.format(b2, disk, c1))
-        print 'Disk {} was moved to peg A'.format(b2)
-        print 'Peg A has disks [{}], peg B has disks [{}], peg C has disks [{}]'.format(b2, disk, c1)
-        goal.modify(action='transfer')
+    def unobstruct_lm_b(goal='action:unobstruct', knowledge='next_disk:?disk in_tower:B', towers='A ?a1 None None B ?disk m ? C None ? ?'):
+        towers.set('A None None None B {} {} None C {} None None'.format(disk, 'm', a1))
+        print 'Disk {} was moved to peg C'.format(a1)
+        print 'Peg A has disks [], peg B has disks [{},{}], peg C has disks [{}]'.format(disk, 'm', a1)
+        towers.set('A {} None None B {} None None C {} None None'.format('m',disk, a1))
+        print 'Disk {} was moved to peg A'.format('m')
+        print 'Peg A has disks [{}], peg B has disks [{}], peg C has disks [{}]'.format('m', disk, a1)
+        knowledge.clear()
+        goal.modify(action='think')
 
     #---------------------------------------Transfer Actions---------------------------------------------
-    def transfer_a1c1(goal='action:transfer', knowledge='next_disk:?disk in_tower:A', towers='A ?disk ? ? B ?b1 ?b2 ? C None ? ?'):
+    def transfer_ac1(goal='action:transfer', knowledge='next_disk:?disk in_tower:A', towers='A ?disk ? ? B ?b1 ?b2 ? C None ? ?'):
         towers.set('A None None None B {} {} None C {} None None'.format(b1, b2, disk))
         print 'Disk {} was moved to peg C'.format(disk)
         print 'Peg A has disks [], peg B has disks [{},{}], peg C has disks [{}]'.format(b1, b2, disk)
         knowledge.clear()
-        goal.modify(action='check_completion')
+        goal.modify(action='think')
 
-    def transfer_a1c2(goal='action:transfer', knowledge='next_disk:?disk in_tower:A', towers='A ?disk ? ? B ?b1 ? ? C ?c1!None None ?'):
+    def transfer_ac2(goal='action:transfer', knowledge='next_disk:?disk in_tower:A', towers='A ?disk ? ? B ?b1 ? ? C ?c1!None None ?'):
         towers.set('A None None None B {} None None C {} {} None'.format(b1, c1, disk))
         print 'Disk {} was moved to peg C'.format(disk)
         print 'Peg A has disks [], peg B has disks [{}], peg C has disks [{},{}]'.format(b1, c1, disk)
         knowledge.clear()
-        goal.modify(action='check_completion')
+        goal.modify(action='think')
 
-    def transfer_a1c3(goal='action:transfer', knowledge='next_disk:?disk in_tower:A', towers='A ?disk ? ? B ? ? ? C ?c1!None ?c2!None ?'):
+    def transfer_ac3(goal='action:transfer', knowledge='next_disk:?disk in_tower:A', towers='A ?disk ? ? B ? ? ? C ?c1!None ?c2!None ?'):
         towers.set('A None None None B None None None C {} {} {}'.format(c1, c2, disk))
         print 'Disk {} was moved to peg C'.format(disk)
         print 'Peg A has disks [], peg B has disks [], peg C has disks [{},{},{}]'.format(c1, c2, disk)
         knowledge.clear()
-        goal.modify(action='check_completion')
+        goal.modify(action='think')
 
-    def transfer_a2c1(goal='action:transfer', knowledge='next_disk:?disk in_tower:A', towers='A ?a1 ?disk ? B ?b1 ? ? C None ? ?'):
-        towers.set('A {} None None B {} None None C {} None None'.format(a1, b1, disk))
-        print 'Disk {} was moved to peg C'.format(disk)
-        print 'Peg A has disks [{}], peg B has disks [{}], peg C has disks [{}]'.format(b1, c1, disk)
-        knowledge.clear()
-        goal.modify(action='check_completion')
-
-    def transfer_a2c2(goal='action:transfer', knowledge='next_disk:?disk in_tower:A', towers='A ?a1 ?disk ? B ? ? ? C ?c1!None ? ?'):
-        towers.set('A {} None None B None None None C {} {} None'.format(a1, c1, disk))
-        print 'Disk {} was moved to peg C'.format(disk)
-        print 'Peg A has disks [{}], peg B has disks [], peg C has disks [{},{}]'.format(a1, c1, disk)
-        knowledge.clear()
-        goal.modify(action='check_completion')
-
-    def transfer_a3c1(goal='action:transfer', knowledge='next_disk:?disk in_tower:B', towers='A ?a1 ?a2 ?disk B ? ? ? C ? ? ?'):
+    def transfer_bc1(goal='action:transfer', knowledge='next_disk:?disk in_tower:B', towers='A ?a1 ?a2 ? B ?disk ? ? C None ? ?'):
         towers.set('A {} {} None B None None None C {} None None'.format(a1, a2, disk))
         print 'Disk {} was moved to peg C'.format(disk)
         print 'Peg A has disks [{},{}], peg B has disks [], peg C has disks [{}]'.format(a1, a2, disk)
         knowledge.clear()
-        goal.modify(action='check_completion')
+        goal.modify(action='think')
 
-    def transfer_b1c1(goal='action:transfer', knowledge='next_disk:?disk in_tower:B', towers='A ?a1 ?a2 ? B ?disk ? ? C None ? ?'):
-        towers.set('A {} {} None B None None None C {} None None'.format(a1, a2, disk))
-        print 'Disk {} was moved to peg C'.format(disk)
-        print 'Peg A has disks [{},{}], peg B has disks [], peg C has disks [{}]'.format(a1, a2, disk)
-        knowledge.clear()
-        goal.modify(action='check_completion')
-
-    def transfer_b1c2(goal='action:transfer', knowledge='next_disk:?disk in_tower:B', towers='A ?a1 ? ? B ?disk ? ? C ?c1!None None ?'):
+    def transfer_bc2(goal='action:transfer', knowledge='next_disk:?disk in_tower:B', towers='A ?a1 ? ? B ?disk ? ? C ?c1!None None ?'):
         towers.set('A {} None None B None None None C {} {} None'.format(a1, c1, disk))
         print 'Disk {} was moved to peg C'.format(disk)
         print 'Peg A has disks [{}], peg B has disks [], peg C has disks [{},{}]'.format(a1, c1, disk)
         knowledge.clear()
-        goal.modify(action='check_completion')
+        goal.modify(action='think')
 
-    def transfer_b1c3(goal='action:transfer', knowledge='next_disk:?disk in_tower:B', towers='A ? ? ? B ?disk ? ? C ?c1!None ?c2!None ?'):
+    def transfer_bc3(goal='action:transfer', knowledge='next_disk:?disk in_tower:B', towers='A ? ? ? B ?disk ? ? C ?c1!None ?c2!None ?'):
         towers.set('A None None None B None None None C {} {} {}'.format(c1, c2, disk))
         print 'Disk {} was moved to peg C'.format(disk)
         print 'Peg A has disks [], peg B has disks [], peg C has disks [{},{},{}]'.format(c1, c2, disk)
         knowledge.clear()
-        goal.modify(action='check_completion')
-
-    def transfer_b2c1(goal='action:transfer', knowledge='next_disk:?disk in_tower:B', towers='A ?a1 ? ? B ?b1 ?disk ? C None ? ?'):
-        towers.set('A {} None None B {} None None C {} None None'.format(a1, b1, disk))
-        print 'Disk {} was moved to peg C'.format(disk)
-        print 'Peg A has disks [{}], peg B has disks [{}], peg C has disks [{}]'.format(a1, b1, disk)
-        knowledge.clear()
-        goal.modify(action='check_completion')
-
-    def transfer_b2c2(goal='action:transfer', knowledge='next_disk:?disk in_tower:B', towers='A ? ? ? B ?b1 ?disk ? C ?c1!None ? ?'):
-        towers.set('A None None None B {} None None C {} {} None'.format(b1, c1, disk))
-        print 'Disk {} was moved to peg C'.format(disk)
-        print 'Peg A has disks [], peg B has disks [{}], peg C has disks [{},{}]'.format(b1, c1, disk)
-        knowledge.clear()
-        goal.modify(action='check_completion')
-
-    def transfer_b3c1(goal='action:transfer', knowledge='next_disk:?disk in_tower:B', towers='A ? ? ? B ?b1 ?b2 ?disk C ? ? ?'):
-        towers.set('A None None None B {} {} None C {} None None'.format(b1, b2, disk))
-        print 'Disk {} was moved to peg C'.format(disk)
-        print 'Peg A has disks [], peg B has disks [{},{}], peg C has disks [{}]'.format(b1, b2, disk)
-        knowledge.clear()
-        goal.modify(action='check_completion')
+        goal.modify(action='think')
 
 model = SolveHanoi()
 ccm.log_everything(model)
-model.goal.set('action:think')
-model.towers.set('A l m s B None None None C None None None')
-model.run()
+model.goal.set('action:init')
+model.towers.set('A l None None B s None None C m None None')
+model.run(),{}
             
-        
+      
